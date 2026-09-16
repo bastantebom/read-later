@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const articlesPath = path.join(__dirname, "../data/articles.json");
+const readLaterPath = path.join(__dirname, "../data/read-later.json");
 
 const app = express();
 const PORT = 3001;
@@ -35,6 +36,22 @@ app.get("/articles", async (_req, res) => {
     });
   }
 });
+
+app.get("/read-later", async (_req, res) => {
+  try {
+    const data = await readFile(readLaterPath, "utf-8");
+    const readLater = JSON.parse(data);
+
+    res.json({
+      items: readLater,
+    });
+  } catch {
+    res.status(500).json({
+      error: "Failed to load read-later items",
+    });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Mock API running on http://localhost:${PORT}`);
