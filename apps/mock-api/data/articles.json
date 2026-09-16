@@ -1,1 +1,66 @@
-[]
+[
+  {
+    "id": "1001",
+    "title": "Auckland commuters prepare for another busy week",
+    "summary": "Transport agencies are asking commuters to plan ahead as several major projects continue across the city.",
+    "publishedAt": "2026-09-16T08:00:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-1/800/450",
+    "section": "Auckland"
+  },
+  {
+    "id": "1002",
+    "title": "New technology changing how New Zealanders shop",
+    "summary": "Retailers are experimenting with new digital tools as customers increasingly expect faster and more personalised experiences.",
+    "publishedAt": "2026-09-16T07:30:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-2/800/450",
+    "section": "Technology"
+  },
+  {
+    "id": "1003",
+    "title": "Black Caps prepare for upcoming international series",
+    "summary": "The squad is preparing for another international campaign with several players competing for places.",
+    "publishedAt": "2026-09-15T22:00:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-3/800/450",
+    "section": "Sport"
+  },
+  {
+    "id": "1004",
+    "title": "Businesses look to AI to improve everyday productivity",
+    "summary": "New Zealand companies are exploring where artificial intelligence can reduce repetitive work without compromising quality.",
+    "publishedAt": "2026-09-15T20:00:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-4/800/450",
+    "section": "Business"
+  },
+  {
+    "id": "1005",
+    "title": "Weekend weather looking promising for much of the North Island",
+    "summary": "Forecasters expect settled conditions across several regions, although some areas may still see isolated showers.",
+    "publishedAt": "2026-09-15T18:30:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-5/800/450",
+    "section": "Weather"
+  },
+  {
+    "id": "1006",
+    "title": "Local restaurants embrace changing dining habits",
+    "summary": "Restaurants are adapting their menus and services as diners look for greater convenience and value.",
+    "publishedAt": "2026-09-15T15:00:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-6/800/450",
+    "section": "Life"
+  },
+  {
+    "id": "1007",
+    "title": "Housing market activity picks up heading into spring",
+    "summary": "New listings and buyer activity are increasing in parts of the country as the spring property season begins.",
+    "publishedAt": "2026-09-15T12:00:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-7/800/450",
+    "section": "Property"
+  },
+  {
+    "id": "1008",
+    "title": "Developers rethink how they build apps across platforms",
+    "summary": "Engineering teams are looking for ways to share business behaviour while still delivering experiences suited to each platform.",
+    "publishedAt": "2026-09-15T10:00:00.000Z",
+    "imageUrl": "https://picsum.photos/seed/article-8/800/450",
+    "section": "Technology"
+  }
+]
