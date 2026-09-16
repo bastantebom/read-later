@@ -1,1 +1,1 @@
-export type { Article, ReadLaterItem } from "./types";
+export type { Article, ReadLaterItem, ArticlesResponse, ReadLaterResponse } from "./types";

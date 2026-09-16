@@ -11,3 +11,11 @@ export type ReadLaterItem = {
   articleId: string;
   savedAt: string;
 };
+
+export type ArticlesResponse = {
+  items: Article[];
+};
+
+export type ReadLaterResponse = {
+  items: ReadLaterItem[];
+};

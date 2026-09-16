@@ -3,6 +3,7 @@ import cors from "cors";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { ArticlesResponse, ReadLaterResponse } from "shared-core";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,11 +26,13 @@ app.get("/", (_req, res) => {
 app.get("/articles", async (_req, res) => {
   try {
     const data = await readFile(articlesPath, "utf-8");
-    const articles = JSON.parse(data);
+    const items = JSON.parse(data);
 
-    res.json({
-      items: articles,
-    });
+    const response: ArticlesResponse = {
+      items,
+    };
+    res.json(response);
+
   } catch {
     res.status(500).json({
       error: "Failed to load articles",
@@ -40,11 +43,12 @@ app.get("/articles", async (_req, res) => {
 app.get("/read-later", async (_req, res) => {
   try {
     const data = await readFile(readLaterPath, "utf-8");
-    const readLater = JSON.parse(data);
+    const items = JSON.parse(data);
 
-    res.json({
-      items: readLater,
-    });
+    const response: ReadLaterResponse = {
+      items,
+    };
+    res.json(response);
   } catch {
     res.status(500).json({
       error: "Failed to load read-later items",
