@@ -3,7 +3,11 @@ import cors from "cors";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ArticlesResponse, ReadLaterItem, ReadLaterResponse } from "shared-core";
+import type {
+  ArticlesResponse,
+  ReadLaterItem,
+  ReadLaterResponse,
+} from "shared-core";
 import { writeFile } from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +37,6 @@ app.get("/articles", async (_req, res) => {
       items,
     };
     res.json(response);
-
   } catch {
     res.status(500).json({
       error: "Failed to load articles",
@@ -59,27 +62,39 @@ app.get("/read-later", async (_req, res) => {
 
 app.post("/read-later", async (_req, res) => {
   try {
-    const readLaterId = _req.body.articleId;
-    const savedAt = new Date().toISOString();
-    const newItem: ReadLaterItem = { articleId: readLaterId, savedAt };
+    const articleId = _req.body.articleId;
+    if (!articleId) {
+      return res
+        .status(400)
+        .json({ error: "Missing articleId in request body" });
+    }
 
     const data = await readFile(readLaterPath, "utf-8");
     const items: ReadLaterItem[] = JSON.parse(data);
-    if(items.some((item: ReadLaterItem) => item.articleId === readLaterId)) {
+    const alreadySaved = items.some(
+      (item: ReadLaterItem) => item.articleId === articleId,
+    );
+
+    if (alreadySaved) {
       return res.status(409).json({ error: "Item already exists" });
     }
+
+    const newItem: ReadLaterItem = {
+      articleId: articleId,
+      savedAt: new Date().toISOString(),
+    };
+
     items.push(newItem);
 
     await writeFile(readLaterPath, JSON.stringify(items, null, 2), "utf-8");
+
     res.status(201).json({ message: "Item added to read-later" });
-  }
-  catch {
+  } catch {
     res.status(500).json({
       error: "Failed to add item to read-later",
     });
   }
-
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Mock API running on http://localhost:${PORT}`);
