@@ -19,8 +19,10 @@ const readLaterPath = path.join(__dirname, "../data/read-later.json");
 const app = express();
 const PORT = 3001;
 const NETWORK_DELAY_MS = 300;
+const SHOULD_FAIL_MUTATIONS = process.env.MOCK_FAIL_MUTATIONS === "true";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const shouldFailMutation = () => SHOULD_FAIL_MUTATIONS;
 
 app.use(cors());
 app.use(express.json());
@@ -66,6 +68,11 @@ app.get("/read-later", async (_req, res) => {
 app.post("/read-later", async (_req, res) => {
   try {
     await delay(NETWORK_DELAY_MS);
+    if (shouldFailMutation()) {
+      return res.status(500).json({
+        error: "Simulated network failure",
+      });
+    }
     const articleId = _req.body.articleId;
     if (!articleId) {
       return res
@@ -103,6 +110,11 @@ app.post("/read-later", async (_req, res) => {
 app.delete("/read-later/:articleId", async (_req, res) => {
   try {
     await delay(NETWORK_DELAY_MS);
+    if (shouldFailMutation()) {
+      return res.status(500).json({
+        error: "Simulated network failure",
+      });
+    }
     const { articleId } = _req.params;
     if (!articleId) {
       return res
