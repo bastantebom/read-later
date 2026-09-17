@@ -18,6 +18,9 @@ const readLaterPath = path.join(__dirname, "../data/read-later.json");
 
 const app = express();
 const PORT = 3001;
+const NETWORK_DELAY_MS = 300;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 app.use(cors());
 app.use(express.json());
@@ -62,6 +65,7 @@ app.get("/read-later", async (_req, res) => {
 
 app.post("/read-later", async (_req, res) => {
   try {
+    await delay(NETWORK_DELAY_MS);
     const articleId = _req.body.articleId;
     if (!articleId) {
       return res
@@ -98,6 +102,7 @@ app.post("/read-later", async (_req, res) => {
 
 app.delete("/read-later/:articleId", async (_req, res) => {
   try {
+    await delay(NETWORK_DELAY_MS);
     const { articleId } = _req.params;
     if (!articleId) {
       return res
