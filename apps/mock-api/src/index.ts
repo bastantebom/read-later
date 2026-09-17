@@ -96,6 +96,43 @@ app.post("/read-later", async (_req, res) => {
   }
 });
 
+app.delete("/read-later/:articleId", async (_req, res) => {
+  try {
+    const { articleId } = _req.params;
+    if (!articleId) {
+      return res
+        .status(400)
+        .json({ error: "Missing articleId in request body" });
+    }
+
+    const data = await readFile(readLaterPath, "utf-8");
+    const items: ReadLaterItem[] = JSON.parse(data);
+    const itemExists = items.some(
+      (item: ReadLaterItem) => item.articleId === articleId,
+    );
+
+    if (!itemExists) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    const updatedItems = items.filter(
+      (item: ReadLaterItem) => item.articleId !== articleId,
+    );
+
+    await writeFile(
+      readLaterPath,
+      JSON.stringify(updatedItems, null, 2),
+      "utf-8",
+    );
+
+    res.status(204).json().send();
+  } catch {
+    res.status(500).json({
+      error: "Failed to remove item from read-later",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Mock API running on http://localhost:${PORT}`);
 });
