@@ -3,11 +3,13 @@ import {
   useAddReadLaterItem,
   useArticles,
   useReadLater,
+  useReadLaterBusy,
   useRemoveReadLaterItem,
 } from "@/hooks/read-later";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Button,
   Alert,
   FlatList,
   StyleSheet,
@@ -17,10 +19,16 @@ import {
 
 export default function HomeScreen() {
   const { data, isLoading, error, refetch: refetchArticles } = useArticles();
-  const { data: readLaterData, refetch: refetchReadLater } = useReadLater();
+  const {
+    data: readLaterData,
+    refetch: refetchReadLater,
+    isPending: isReadLaterPending,
+    isError: isReadLaterError,
+  } = useReadLater();
 
   const addReadLater = useAddReadLaterItem();
   const removeReadLater = useRemoveReadLaterItem();
+  const busy = useReadLaterBusy();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -33,12 +41,12 @@ export default function HomeScreen() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isReadLaterPending) {
     return <ActivityIndicator />;
   }
 
-  if (error) {
-    return <Text>Failed to load articles</Text>;
+  if (error || isReadLaterError) {
+    return <View><Text>Failed to load articles or saved bookmarks</Text><Button title="Try again" onPress={onRefresh} /></View>;
   }
 
   return (
@@ -63,14 +71,23 @@ export default function HomeScreen() {
           <ArticleCard
             article={item}
             isSaved={isSaved}
+            disabled={busy || isReadLaterPending}
             onBookmarkPress={() => {
               if (isSaved) {
                 removeReadLater.mutate(item.id, {
-                  onError: () => Alert.alert("Bookmark update failed", "Couldn't remove this article. Please try again."),
+                  onError: () =>
+                    Alert.alert(
+                      "Bookmark update failed",
+                      "Couldn't remove this article. Please try again.",
+                    ),
                 });
               } else {
                 addReadLater.mutate(item.id, {
-                  onError: () => Alert.alert("Bookmark update failed", "Couldn't save this article. Please try again."),
+                  onError: () =>
+                    Alert.alert(
+                      "Bookmark update failed",
+                      "Couldn't save this article. Please try again.",
+                    ),
                 });
               }
             }}

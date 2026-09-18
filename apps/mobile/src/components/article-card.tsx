@@ -6,12 +6,14 @@ import type { Article } from "shared-core";
 type ArticleCardProps = {
   article: Article;
   isSaved: boolean;
+  disabled: boolean;
   onBookmarkPress: () => void;
 };
 
 export function ArticleCard({
   article,
   isSaved,
+  disabled,
   onBookmarkPress,
 }: ArticleCardProps) {
   return (
@@ -22,7 +24,11 @@ export function ArticleCard({
         <View style={styles.cardHeader}>
           <Text style={styles.section}>{article.section}</Text>
 
-          <Pressable hitSlop={10} onPress={onBookmarkPress}>
+          <Pressable
+            hitSlop={10}
+            onPress={onBookmarkPress}
+            disabled={disabled}
+          >
             <Ionicons
               name={isSaved ? "bookmark" : "bookmark-outline"}
               size={22}

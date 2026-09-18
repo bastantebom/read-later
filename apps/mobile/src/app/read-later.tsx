@@ -1,36 +1,40 @@
-import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 import {
   ActivityIndicator,
+  Button,
   Alert,
   FlatList,
-  Image,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 
+import { ArticleCard } from "@/components/article-card";
 import {
   useArticles,
   useReadLater,
+  useReadLaterBusy,
   useRemoveReadLaterItem,
 } from "@/hooks/read-later";
-import { ArticleCard } from "@/components/article-card";
 
 export default function ReadLaterScreen() {
   const {
     data: articlesData,
     isLoading: isArticlesLoading,
+    isError: isArticlesError,
     refetch: refetchArticles,
   } = useArticles();
   const {
     data: readLaterData,
     isLoading: isReadLaterLoading,
     refetch: refetchReadLater,
+    isError: isReadLaterError,
+    isPending: isReadLaterPending,
   } = useReadLater();
 
   const removeReadLater = useRemoveReadLaterItem();
+  const busy = useReadLaterBusy();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -56,6 +60,10 @@ export default function ReadLaterScreen() {
         <ActivityIndicator />
       </View>
     );
+  }
+
+  if (isArticlesError || isReadLaterError) {
+    return <View><Text>Failed to load saved articles</Text><Button title="Try again" onPress={onRefresh} /></View>;
   }
 
   return (
@@ -89,10 +97,15 @@ export default function ReadLaterScreen() {
         <ArticleCard
           article={item}
           isSaved={true}
+          disabled={busy || isReadLaterPending}
           onBookmarkPress={() => {
             removeReadLater.mutate(item.id, {
-                  onError: () => Alert.alert("Bookmark update failed", "Couldn't remove this article. Please try again."),
-                });
+              onError: () =>
+                Alert.alert(
+                  "Bookmark update failed",
+                  "Couldn't remove this article. Please try again.",
+                ),
+            });
           }}
         />
       )}

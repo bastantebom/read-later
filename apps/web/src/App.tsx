@@ -4,7 +4,7 @@ import "./App.css";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const { useArticles, useReadLater } = createReadLaterHooks(apiUrl);
-const { useAddReadLaterItem, useRemoveReadLaterItem } =
+const { useAddReadLaterItem, useRemoveReadLaterItem, useReadLaterBusy } =
   createReadLaterMutations(apiUrl);
 
 function Bookmark({ saved = false }: { saved?: boolean }) {
@@ -42,7 +42,7 @@ function App() {
 
   const loading = articlesQuery.isPending || readLaterQuery.isPending;
   const failed = articlesQuery.isError || readLaterQuery.isError;
-  const busy = addReadLater.isPending || removeReadLater.isPending;
+  const busy = useReadLaterBusy();
 
   return (
     <>
