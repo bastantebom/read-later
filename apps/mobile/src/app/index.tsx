@@ -14,6 +14,7 @@ import {
   Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { ArticleCard } from "@/components/article-card";
 
 export default function HomeScreen() {
   const { data, isLoading, error } = useArticles();
@@ -46,33 +47,17 @@ export default function HomeScreen() {
             (savedItem) => savedItem.articleId === item.id,
           ) ?? false;
         return (
-          <View style={styles.card}>
-            <Image source={{ uri: item.imageUrl }} style={styles.image} />
-
-            <View style={styles.content}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.section}>{item.section}</Text>
-
-                <Pressable
-                  onPress={() => {
-                    if (isSaved) {
-                      removeReadLater.mutate(item.id);
-                    } else {
-                      addReadLater.mutate(item.id);
-                    }
-                  }}
-                >
-                  <Ionicons
-                    name={isSaved ? "bookmark" : "bookmark-outline"}
-                    size={22}
-                  />
-                </Pressable>
-              </View>
-
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.summary}>{item.summary}</Text>
-            </View>
-          </View>
+          <ArticleCard
+            article={item}
+            isSaved={true}
+            onBookmarkPress={() => {
+              if (isSaved) {
+                removeReadLater.mutate(item.id);
+              } else {
+                addReadLater.mutate(item.id);
+              }
+            }}
+          />
         );
       }}
     />
