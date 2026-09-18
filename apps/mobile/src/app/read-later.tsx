@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
@@ -17,10 +18,29 @@ import {
 import { ArticleCard } from "@/components/article-card";
 
 export default function ReadLaterScreen() {
-  const { data: articlesData, isLoading: isArticlesLoading } = useArticles();
-  const { data: readLaterData, isLoading: isReadLaterLoading } = useReadLater();
+  const {
+    data: articlesData,
+    isLoading: isArticlesLoading,
+    refetch: refetchArticles,
+  } = useArticles();
+  const {
+    data: readLaterData,
+    isLoading: isReadLaterLoading,
+    refetch: refetchReadLater,
+  } = useReadLater();
 
   const removeReadLater = useRemoveReadLaterItem();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.allSettled([refetchArticles(), refetchReadLater()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const savedIds = new Set(
     readLaterData?.items.map((item) => item.articleId) ?? [],
@@ -39,6 +59,9 @@ export default function ReadLaterScreen() {
 
   return (
     <FlatList
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      alwaysBounceVertical
       data={savedArticles}
       keyExtractor={(article) => article.id}
       contentContainerStyle={styles.list}
@@ -79,6 +102,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 16,
     flexGrow: 1,
+    marginTop: 50,
   },
 
   header: {

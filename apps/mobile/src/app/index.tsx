@@ -1,27 +1,36 @@
+import { ArticleCard } from "@/components/article-card";
 import {
   useAddReadLaterItem,
   useArticles,
   useReadLater,
   useRemoveReadLaterItem,
 } from "@/hooks/read-later";
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  Image,
-  Pressable,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { ArticleCard } from "@/components/article-card";
 
 export default function HomeScreen() {
-  const { data, isLoading, error } = useArticles();
-  const { data: readLaterData } = useReadLater();
+  const { data, isLoading, error, refetch: refetchArticles } = useArticles();
+  const { data: readLaterData, refetch: refetchReadLater } = useReadLater();
 
   const addReadLater = useAddReadLaterItem();
   const removeReadLater = useRemoveReadLaterItem();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      await Promise.allSettled([refetchArticles(), refetchReadLater()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -33,6 +42,9 @@ export default function HomeScreen() {
 
   return (
     <FlatList
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      alwaysBounceVertical
       data={data?.items ?? []}
       keyExtractor={(article) => article.id}
       contentContainerStyle={styles.list}
@@ -49,7 +61,7 @@ export default function HomeScreen() {
         return (
           <ArticleCard
             article={item}
-            isSaved={true}
+            isSaved={isSaved}
             onBookmarkPress={() => {
               if (isSaved) {
                 removeReadLater.mutate(item.id);
@@ -68,6 +80,7 @@ const styles = StyleSheet.create({
   list: {
     padding: 16,
     gap: 16,
+    marginTop: 50,
   },
 
   header: {
