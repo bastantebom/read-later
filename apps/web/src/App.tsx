@@ -51,11 +51,6 @@ function App() {
           <h1>{tab === "articles" ? "Latest Articles" : "Read Later"}</h1>
           {tab === "saved" && <p>Articles you've saved for later</p>}
         </header>
-        {(addReadLater.isError || removeReadLater.isError) && (
-          <p role="alert" className="error">
-            Could not update your bookmarks. Please try again.
-          </p>
-        )}
         {loading ? (
           <p role="status">Loading articles…</p>
         ) : failed ? (
@@ -97,10 +92,12 @@ function App() {
                           aria-pressed={isSaved}
                           disabled={busy}
                           onClick={() => {
-                            addReadLater.reset();
-                            removeReadLater.reset();
-                            if (isSaved) removeReadLater.mutate(item.id);
-                            else addReadLater.mutate(item.id);
+                            if (isSaved) removeReadLater.mutate(item.id, {
+                              onError: () => window.alert("Couldn't remove this article. Please try again."),
+                            });
+                            else addReadLater.mutate(item.id, {
+                              onError: () => window.alert("Couldn't save this article. Please try again."),
+                            });
                           }}
                         >
                           <Bookmark saved={isSaved} />

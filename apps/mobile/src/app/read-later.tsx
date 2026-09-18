@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Pressable,
@@ -89,7 +90,9 @@ export default function ReadLaterScreen() {
           article={item}
           isSaved={true}
           onBookmarkPress={() => {
-            removeReadLater.mutate(item.id);
+            removeReadLater.mutate(item.id, {
+                  onError: () => Alert.alert("Bookmark update failed", "Couldn't remove this article. Please try again."),
+                });
           }}
         />
       )}

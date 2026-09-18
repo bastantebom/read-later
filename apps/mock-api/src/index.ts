@@ -142,7 +142,7 @@ app.delete("/read-later/:articleId", async (_req, res) => {
       "utf-8",
     );
 
-    res.status(204).json().send();
+    res.status(204).end();
   } catch {
     res.status(500).json({
       error: "Failed to remove item from read-later",
