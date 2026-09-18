@@ -13,6 +13,8 @@ I kept the web and mobile presentation separate because the scenario describes a
 
 The behaviour that must not diverge lives in `shared-core`. Both surfaces use the same save/unsave mutations, optimistic updates, rollback and reconciliation logic.
 
+Both surfaces share a pending-state hook and a mutation guard that rejects overlapping bookmark changes within the same QueryClient. Actions remain disabled until reconciliation finishes. This keeps snapshot rollback predictable, at the cost of allowing only one bookmark change at a time per client.
+
 Each app provides its API URL to the shared package rather than having platform configuration inside shared code.
 
 ## Trade-offs
@@ -45,6 +47,8 @@ I prioritised the behaviour with the highest risk: save/unsave state, persistenc
 
 The mock API supports controlled mutation failures so rollback can be exercised deliberately. I also tested API behaviour including successful save/delete, duplicate save and removing a missing item.
 
+Additional verification covered web build/lint and mobile TypeScript checks. A one-off check exercised optimistic saving, rejection of overlapping mutations without another API call or cache change, release of the guard, and rollback on failure. This is not a committed regression suite or a device-level test.
+
 I did not prioritise snapshot or detailed visual tests because the UI is intentionally small and the exercise focuses more on shared behaviour than presentation. With more time I would add automated tests around the shared mutation behaviour, particularly optimistic updates, rollback and reconciliation.
 
 ## Not done / next
@@ -53,7 +57,7 @@ Before serving two million users per month I would replace JSON persistence with
 
 I would add authentication, runtime API validation, observability, structured logging, metrics and error reporting.
 
-I would also add automated integration tests, accessibility coverage, pagination for article feeds and saved items, retry/offline behaviour, and stronger handling of concurrent mutations. The current snapshot-based optimistic rollback can temporarily restore stale state if several mutations overlap; I would address that with targeted rollback/reconciliation.
+I would also add automated integration tests, accessibility coverage, pagination for article feeds and saved items, retry/offline behaviour, and server-side concurrency protection. The shared mutation guard only coordinates one client; simultaneous web and mobile requests can still race in the JSON read/write cycle and lose updates. A transactional datastore is needed to coordinate separate clients.
 
 ## AI use
 
