@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -64,9 +65,13 @@ export default function HomeScreen() {
             isSaved={isSaved}
             onBookmarkPress={() => {
               if (isSaved) {
-                removeReadLater.mutate(item.id);
+                removeReadLater.mutate(item.id, {
+                  onError: () => Alert.alert("Bookmark update failed", "Couldn't remove this article. Please try again."),
+                });
               } else {
-                addReadLater.mutate(item.id);
+                addReadLater.mutate(item.id, {
+                  onError: () => Alert.alert("Bookmark update failed", "Couldn't save this article. Please try again."),
+                });
               }
             }}
           />
