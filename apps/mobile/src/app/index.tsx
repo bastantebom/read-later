@@ -1,98 +1,139 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import {
+  useAddReadLaterItem,
+  useArticles,
+  useReadLater,
+  useRemoveReadLaterItem,
+} from "@/hooks/read-later";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  Pressable,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
+  const { data, isLoading, error } = useArticles();
+  const { data: readLaterData } = useReadLater();
+
+  const addReadLater = useAddReadLaterItem();
+  const removeReadLater = useRemoveReadLaterItem();
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  if (error) {
+    return <Text>Failed to load articles</Text>;
+  }
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <FlatList
+      data={data?.items ?? []}
+      keyExtractor={(article) => article.id}
+      contentContainerStyle={styles.list}
+      ListHeaderComponent={
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Latest Articles</Text>
+        </View>
+      }
+      renderItem={({ item }) => {
+        const isSaved =
+          readLaterData?.items.some(
+            (savedItem) => savedItem.articleId === item.id,
+          ) ?? false;
+        return (
+          <View style={styles.card}>
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+            <View style={styles.content}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.section}>{item.section}</Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+                <Pressable
+                  onPress={() => {
+                    if (isSaved) {
+                      removeReadLater.mutate(item.id);
+                    } else {
+                      addReadLater.mutate(item.id);
+                    }
+                  }}
+                >
+                  <Ionicons
+                    name={isSaved ? "bookmark" : "bookmark-outline"}
+                    size={22}
+                  />
+                </Pressable>
+              </View>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.summary}>{item.summary}</Text>
+            </View>
+          </View>
+        );
+      }}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+  list: {
+    padding: 16,
+    gap: 16,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+
+  header: {
+    marginBottom: 8,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "700",
   },
+
+  card: {
+    flexDirection: "row",
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    gap: 12,
+  },
+
+  image: {
+    width: 110,
+    height: 110,
+    borderRadius: 6,
+  },
+
+  content: {
+    flex: 1,
+    gap: 6,
+  },
+
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  section: {
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+
   title: {
-    textAlign: 'center',
+    fontSize: 17,
+    fontWeight: "700",
   },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  summary: {
+    fontSize: 14,
+    lineHeight: 19,
   },
 });
